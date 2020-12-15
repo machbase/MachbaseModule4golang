@@ -10,140 +10,182 @@ package machbase
 #define RC_FAILURE          -1
 #define ERROR_CHECK_COUNT   100
 
-typedef long long LONGLONG;
-
 //******************************************************* pointer array create
-static char** makeCharArray(int size) 
+static char* makeErrChar(int aMaxColSize)
 {
-    return calloc(size, sizeof(char*));
+    return malloc(sizeof(char) * aMaxColSize);
 }
 
-static char** makeCharArray2(int size, int size2) 
+static char** makeAppendCharArray(int aLength)
 {
-    char** sRet = calloc(size, sizeof(char*));
+    return calloc(aLength, sizeof(char*));
+}
 
-    for(int i = 0; i < size; i++) 
+static int* makeAppendTypeArray(int aLength)
+{
+    return calloc(aLength, sizeof(int));
+}
+
+static char** makeColNameArray(int aColumnCount, int aColumnSize)
+{
+    char** sArr = calloc(aColumnCount, sizeof(char*));
+    int i = 0;
+
+    for(i = 0; i < aColumnCount; i++)
     {
-        sRet[i] = (char *)malloc(sizeof(char) * size2);
+        sArr[i] = (char *)malloc(sizeof(char) * aColumnSize);
     }
 
-    return sRet;
+    return sArr;
 }
 
-static char* makeErrChar(int size)
+static SQLSMALLINT* makeColTypeArray(int aColumnCount)
 {
-    return malloc(sizeof(char) * size);
+    return calloc(aColumnCount, sizeof(SQLSMALLINT));
 }
 
-static int* makeIntArray(int size) 
+static SQLULEN* makeColLengthArray(int aColumnCount)
 {
-    return calloc(size, sizeof(int));
+    return calloc(aColumnCount, sizeof(SQLULEN));
 }
 
-static SQLSMALLINT* makeIntArray2(int size) 
+static SQLLEN* makeColRLengthArray(int aColumnCount)
 {
-    return calloc(size, sizeof(SQLSMALLINT));
+    return calloc(aColumnCount, sizeof(SQLLEN));
 }
 
-static SQLULEN* makeIntArray3(int size) 
+static long long* makeLongArray(int aColumnCount)
 {
-    return calloc(size, sizeof(SQLULEN));
+    return calloc(aColumnCount, sizeof(long long));
 }
 
-static SQLLEN* makeIntArray4(int size) 
+static double* makeDoubleArray(int aColumnCount)
 {
-    return calloc(size, sizeof(SQLLEN));
+    return calloc(aColumnCount, sizeof(double));
 }
 
-static long long* makeLongArray(int size) 
+static char** makeBindCharArray(int aColumnCount, int aMaxColSize, int aBlobColSize, short* aColumnTypeArr)
 {
-    return calloc(size, sizeof(long long));
-}
+    char** sArr = calloc(aColumnCount, sizeof(char*));
+    int i = 0;
 
-static double* makeDoubleArray(int size) 
-{
-    return calloc(size, sizeof(double));
+    for(i = 0; i < aColumnCount; i++)
+    {
+        if (aColumnTypeArr[i] == -2 || aColumnTypeArr[i] == 2100)
+        {
+            sArr[i] = (char *)malloc(sizeof(char) * aBlobColSize);
+        }
+        else
+        {
+            sArr[i] = (char *)malloc(sizeof(char) * aMaxColSize);
+        }
+    }
+
+    return sArr;
 }
 
 //******************************************************* pointer array data setting
-static void setArrayString(char **a, char *s, int n) 
+static void setArrayString(char **aCharArr, char *aChar, int aIndex)
 {
-    a[n] = s;
+    aCharArr[aIndex] = aChar;
 }
 
-static void setArrayInt(int *a, int s, int n) 
+static void setArrayInt(int *aIntArr, int aValue, int aIndex)
 {
-    a[n] = s;
+    aIntArr[aIndex] = aValue;
+}
+
+static void setArrayLong(long long *aLongArr, long long aValue, int aIndex)
+{
+    aLongArr[aIndex] = aValue;
+}
+
+static void setArrayDouble(double *aDoubleArr, double aValue, int aIndex)
+{
+    aDoubleArr[aIndex] = aValue;
+}
+
+static char* setNilString()
+{
+    char* sResult = malloc(sizeof(char) * 2);
+    sResult[0] = 0;
+
+    return sResult;
 }
 
 //******************************************************* pointer array free
-static void freeCharArray(char **a, int size) 
+static void freeCharArray(char **aCharArr, int aColumnCount)
 {
     int i;
-    for (i = 0; i < size; i++)
-        free(a[i]);
-    free(a);
+    for (i = 0; i < aColumnCount; i++)
+        free(aCharArr[i]);
+    free(aCharArr);
 }
 
-static void freeErrChar(char *a)
+static void freeChar(char *aChar)
 {
-    free(a);
+    free(aChar);
 }
 
-static void freeIntArray(int *a) 
+static void freeAppendTypeArray(int *aAppendTypeArr)
 {
-    free(a);
+    free(aAppendTypeArr);
 }
 
-static void freeIntArray2(SQLSMALLINT *a) 
+static void freeColTypeArray(SQLSMALLINT *aColumnTypeArr)
 {
-    free(a);
+    free(aColumnTypeArr);
 }
 
-static void freeIntArray3(SQLULEN *a) 
+static void freeColLenArray(SQLULEN *aColumnLengArr)
 {
-    free(a);
+    free(aColumnLengArr);
 }
 
-static void freeIntArray4(SQLLEN *a) 
+static void freeColRLenArray(SQLLEN *aColumnRLengArr)
 {
-    free(a);
+    free(aColumnRLengArr);
 }
 
-static void freeLongArray(long long *a)
+static void freeLongArray(long long *aArr)
 {
-    free(a);
+    free(aArr);
 }
 
-static void freeDoubleArray(double *a) 
+static void freeDoubleArray(double *aArr)
 {
-    free(a);
+    free(aArr);
 }
 
 //******************************************************* Get data from pointer array start
-static char* getCharValue(char** aStr, int aIndex) 
+static char* getCharValue(char** aCharArr, int aIndex)
 {
-    return aStr[aIndex];
+    return aCharArr[aIndex];
 }
 
-static int getShortValue(SQLSMALLINT* aInt, int aIndex) 
+static SQLLEN getColLen(SQLLEN* aColumnLengArr, int aIndex)
 {
-    return (int)aInt[aIndex];
+    return aColumnLengArr[aIndex];
 }
 
-static long getlongValue(SQLULEN* aLong, int aIndex) 
+static int getShortValue(SQLSMALLINT* aIntArr, int aIndex)
 {
-    return (long)aLong[aIndex];
+    return (int)aIntArr[aIndex];
 }
 
-static long long getlonglongValue(long long* aLong, int aIndex) 
+static long getlongValue(SQLULEN* aLongArr, int aIndex)
 {
-    return (long long)aLong[aIndex];
+    return (long)aLongArr[aIndex];
 }
 
-static double getDoubleValue(double* adouble, int aIndex) 
+static long long getlonglongValue(long long* aLongLongArr, int aIndex)
 {
-    return (double)adouble[aIndex];
+    return (long long)aLongLongArr[aIndex];
+}
+
+static double getDoubleValue(double* adoubleArr, int aIndex)
+{
+    return (double)adoubleArr[aIndex];
 }
 
 //******************************************************* machbase c code start
@@ -158,40 +200,40 @@ void printError(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStr, char 
         sErrorMsg, SQL_MAX_MESSAGE_LENGTH, &sMsgLength) == SQL_SUCCESS )
     {
         sprintf(aErrStr, "%s\nSQLSTATE-[%s], Machbase-[%d][%s]", aMsg, sSqlState, sNativeError, sErrorMsg);
-    } 
-    else 
+    }
+    else
     {
         sprintf(aErrStr, "%s\n", aMsg);
     }
 }
 
-int connectDB(SQLHENV *aEnv, SQLHDBC *aCon, char *aErrCon, char *aConnStr)
+int connectDB(SQLHENV *aEnv, SQLHDBC *aCon, char *aCConErr, char *aDriver)
 {
     if( SQLAllocEnv(aEnv) != SQL_SUCCESS )
     {
-        strcpy(aErrCon, "SQLAllocEnv error");
+        strcpy(aCConErr, "SQLAllocEnv error");
 
         return RC_FAILURE;
     }
 
     if( SQLAllocConnect(*aEnv, aCon) != SQL_SUCCESS )
     {
-        strcpy(aErrCon, "SQLAllocConnect error");
+        strcpy(aCConErr, "SQLAllocConnect error");
 
         SQLFreeEnv(*aEnv);
         *aEnv = SQL_NULL_HENV;
 
         return RC_FAILURE;
     }
-    
+
     if( SQLDriverConnect( *aCon, NULL,
-                          (SQLCHAR *)aConnStr,
+                          (SQLCHAR *)aDriver,
                           SQL_NTS,
                           NULL, 0, NULL,
                           SQL_DRIVER_NOPROMPT ) != SQL_SUCCESS
       )
     {
-        printError(*aEnv, *aCon, NULL, aErrCon, "SQLDriverConnect error");
+        printError(*aEnv, *aCon, NULL, aCConErr, "SQLDriverConnect error");
 
         SQLFreeConnect(*aCon);
         *aCon = SQL_NULL_HDBC;
@@ -209,7 +251,6 @@ int disconnectDB(SQLHENV *aEnv, SQLHDBC *aCon)
 {
     if( SQLDisconnect(*aCon) != SQL_SUCCESS )
     {
-        printf("%s\n", "SQLDisconnect error");
         return RC_FAILURE;
     }
 
@@ -222,16 +263,13 @@ int disconnectDB(SQLHENV *aEnv, SQLHDBC *aCon)
     return RC_SUCCESS;
 }
 
-int allocStmt(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT *aStmt, char *aErrStmt, int aErrIgnore)
+int allocStmt(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT *aStmt, char *aCStmtErr)
 {
     *aStmt = SQL_NULL_HSTMT;
 
     if( SQLAllocStmt(aCon, aStmt) != SQL_SUCCESS )
     {
-        if( aErrIgnore == 0 )
-        {
-            printError(aEnv, aCon, *aStmt, aErrStmt, "SQLAllocStmt Error");
-        }
+        printError(aEnv, aCon, *aStmt, aCStmtErr, "SQLAllocStmt Error");
 
         return RC_FAILURE;
     }
@@ -241,15 +279,12 @@ int allocStmt(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT *aStmt, char *aErrStmt, int a
     }
 }
 
-int execDirect(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char *aSQL, int aErrIgnore)
+int execDirect(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, char *aSQL)
 {
     if( SQLExecDirect(aStmt, (SQLCHAR *)aSQL, SQL_NTS) != SQL_SUCCESS )
     {
-        if( aErrIgnore == 0 )
-        {
-            printError(aEnv, aCon, aStmt, aErrStmt, "SQLExecDirect Error");
-        }
-        
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLExecDirect Error");
+
         return RC_FAILURE;
     }
     else
@@ -258,15 +293,10 @@ int execDirect(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char 
     }
 }
 
-int freeStmt(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT *aStmt, int aErrIgnore)
+int freeStmt(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT *aStmt)
 {
     if( SQLFreeStmt(*aStmt, SQL_DROP) != SQL_SUCCESS )
     {
-        if (aErrIgnore == 0)
-        {
-            printf("%s\n", "SQLFreeStmt Error");
-        }
-
         return RC_FAILURE;
     }
 
@@ -274,11 +304,11 @@ int freeStmt(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT *aStmt, int aErrIgnore)
     return RC_SUCCESS;
 }
 
-int appendOpen(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char *aTableName)
+int appendOpen(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, char *aTableName)
 {
     if( SQLAppendOpen(aStmt, (SQLCHAR *)aTableName, ERROR_CHECK_COUNT) != SQL_SUCCESS )
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLAppendOpen Error");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLAppendOpen Error");
         return RC_FAILURE;
     }
     else
@@ -287,16 +317,16 @@ int appendOpen(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char 
     }
 }
 
-int appendDataV2(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, int *aType, char **aValue, char *aDateFormat, int aLen)
+int appendDataV2(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, int *aTypeArr, char **aValueArr, char *aDateFormat, int aLength, int aByteArrSize)
 {
     int i;
-    SQL_APPEND_PARAM *sParam = malloc(sizeof(SQL_APPEND_PARAM) * aLen);
-    memset(sParam,0,sizeof(SQL_APPEND_PARAM) * aLen);
-    for(i=0; i < aLen; i++)
+    SQL_APPEND_PARAM *sParam = malloc(sizeof(SQL_APPEND_PARAM) * aLength);
+    memset(sParam,0,sizeof(SQL_APPEND_PARAM) * aLength);
+    for(i=0; i < aLength; i++)
     {
-        if (aValue[i][0] == '\0')
+        if (aValueArr[i][0] == '\0')
         {
-            switch(aType[i])
+            switch(aTypeArr[i])
             {
                 case 11:
                     sParam[i].mUShort = SQL_APPEND_USHORT_NULL;
@@ -325,18 +355,18 @@ int appendDataV2(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, int
                 case 8:
                     sParam[i].mDateTime.mTime = (long long)SQL_APPEND_DATETIME_NULL;
                     sParam[i].mDateTime.mFormatStr = aDateFormat;
-                    sParam[i].mDateTime.mDateStr = aValue[i];
+                    sParam[i].mDateTime.mDateStr = aValueArr[i];
                     break;
-                case 9:
                 case 10:
+                case 9:
                 case 5:
-                    sParam[i].mVar.mData = aValue[i];
+                    sParam[i].mVar.mData = aValueArr[i];
                     sParam[i].mVar.mLength = SQL_APPEND_TEXT_NULL;
                     break;
                 case 6:
                 case 7:
                     sParam[i].mIP.mLength = SQL_APPEND_IP_NULL;
-                    sParam[i].mIP.mAddrString = aValue[i];
+                    sParam[i].mIP.mAddrString = aValueArr[i];
                     break;
                 default:
                     break;
@@ -344,54 +374,57 @@ int appendDataV2(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, int
         }
         else
         {
-            switch(aType[i])
+            switch(aTypeArr[i])
             {
                 case 11:
-                    sParam[i].mUShort = atoi(aValue[i]);
+                    sParam[i].mUShort = atoi(aValueArr[i]);
                     break;
                 case 0:
-                    sParam[i].mShort = atoi(aValue[i]);
+                    sParam[i].mShort = atoi(aValueArr[i]);
                     break;
                 case 12:
-                    sParam[i].mUInteger = atoi(aValue[i]);
+                    sParam[i].mUInteger = atoi(aValueArr[i]);
                     break;
                 case 1:
-                    sParam[i].mInteger = atoi(aValue[i]);
+                    sParam[i].mInteger = atoi(aValueArr[i]);
                     break;
                 case 13:
-                    sParam[i].mULong = atoll(aValue[i]);
+                    sParam[i].mULong = atoll(aValueArr[i]);
                     break;
                 case 2:
-                    sParam[i].mLong = atoll(aValue[i]);
+                    sParam[i].mLong = atoll(aValueArr[i]);
                     break;
                 case 3:
-                    sParam[i].mFloat = atof(aValue[i]);
+                    sParam[i].mFloat = atof(aValueArr[i]);
                     break;
                 case 4:
-                    sParam[i].mDouble = atof(aValue[i]);
+                    sParam[i].mDouble = atof(aValueArr[i]);
                     break;
                 case 8:
                     if(aDateFormat[0] == '\0')
                     {
-                        sParam[i].mDateTime.mTime = atoll(aValue[i]);
+                        sParam[i].mDateTime.mTime = atoll(aValueArr[i]);
                     }
                     else
                     {
                         sParam[i].mDateTime.mTime = SQL_APPEND_DATETIME_STRING;
                         sParam[i].mDateTime.mFormatStr = aDateFormat;
-                        sParam[i].mDateTime.mDateStr = aValue[i];
+                        sParam[i].mDateTime.mDateStr = aValueArr[i];
                     }
                     break;
-                case 9:
                 case 10:
+                    sParam[i].mVar.mData = aValueArr[i];
+                    sParam[i].mVar.mLength = aByteArrSize;
+                    break;
+                case 9:
                 case 5:
-                    sParam[i].mVar.mData = aValue[i];
-                    sParam[i].mVar.mLength = strlen(aValue[i]);
+                    sParam[i].mVar.mData = aValueArr[i];
+                    sParam[i].mVar.mLength = strlen(aValueArr[i]);
                     break;
                 case 6:
                 case 7:
                     sParam[i].mIP.mLength = SQL_APPEND_IP_STRING;
-                    sParam[i].mIP.mAddrString = aValue[i];
+                    sParam[i].mIP.mAddrString = aValueArr[i];
                     break;
                 default:
                     break;
@@ -402,7 +435,7 @@ int appendDataV2(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, int
     if( SQLAppendDataV2(aStmt, sParam) != SQL_SUCCESS )
     {
         free(sParam);
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLAppendData Error");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLAppendData Error");
         return RC_FAILURE;
     }
     else
@@ -412,11 +445,138 @@ int appendDataV2(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, int
     }
 }
 
-int appendFlush(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt)
+int appendDataV2I(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, int *aTypeArr, long long *aLongValueArr, double *aDoubleValueArr, char **aStringValueArr, char *aDateFormat, int aLength, int aByteArrSize)
+{
+    int i;
+    SQL_APPEND_PARAM *sParam = malloc(sizeof(SQL_APPEND_PARAM) * aLength);
+    memset(sParam,0,sizeof(SQL_APPEND_PARAM) * aLength);
+    for(i=0; i < aLength; i++)
+    {
+        if (aStringValueArr[i][0] == '\0' && aLongValueArr[i] == SQL_APPEND_LONG_NULL && aDoubleValueArr[i] == SQL_APPEND_DOUBLE_NULL)
+        {
+            switch(aTypeArr[i])
+            {
+                case 11:
+                    sParam[i].mUShort = SQL_APPEND_USHORT_NULL;
+                    break;
+                case 0:
+                    sParam[i].mShort = (short)SQL_APPEND_SHORT_NULL;
+                    break;
+                case 12:
+                    sParam[i].mUInteger = SQL_APPEND_UINTEGER_NULL;
+                    break;
+                case 1:
+                    sParam[i].mInteger = (int)SQL_APPEND_INTEGER_NULL;
+                    break;
+                case 13:
+                    sParam[i].mULong = SQL_APPEND_ULONG_NULL;
+                    break;
+                case 2:
+                    sParam[i].mLong = (long long)SQL_APPEND_LONG_NULL;
+                    break;
+                case 3:
+                    sParam[i].mFloat = SQL_APPEND_FLOAT_NULL;
+                    break;
+                case 4:
+                    sParam[i].mDouble = SQL_APPEND_DOUBLE_NULL;
+                    break;
+                case 8:
+                    sParam[i].mDateTime.mTime = (long long)SQL_APPEND_DATETIME_NULL;
+                    sParam[i].mDateTime.mFormatStr = aDateFormat;
+                    sParam[i].mDateTime.mDateStr = aStringValueArr[i];
+                    break;
+                case 10:
+                case 9:
+                case 5:
+                    sParam[i].mVar.mData = aStringValueArr[i];
+                    sParam[i].mVar.mLength = SQL_APPEND_TEXT_NULL;
+                    break;
+                case 6:
+                case 7:
+                    sParam[i].mIP.mLength = SQL_APPEND_IP_NULL;
+                    sParam[i].mIP.mAddrString = aStringValueArr[i];
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch(aTypeArr[i])
+            {
+                case 11:
+                    sParam[i].mUShort = aLongValueArr[i];
+                    break;
+                case 0:
+                    sParam[i].mShort = aLongValueArr[i];
+                    break;
+                case 12:
+                    sParam[i].mUInteger = aLongValueArr[i];
+                    break;
+                case 1:
+                    sParam[i].mInteger = aLongValueArr[i];
+                    break;
+                case 13:
+                    sParam[i].mULong = aLongValueArr[i];
+                    break;
+                case 2:
+                    sParam[i].mLong = aLongValueArr[i];
+                    break;
+                case 3:
+                    sParam[i].mFloat = aDoubleValueArr[i];
+                    break;
+                case 4:
+                    sParam[i].mDouble = aDoubleValueArr[i];
+                    break;
+                case 8:
+                    if(aDateFormat[0] == '\0')
+                    {
+                        sParam[i].mDateTime.mTime = atoll(aStringValueArr[i]);
+                    }
+                    else
+                    {
+                        sParam[i].mDateTime.mTime = SQL_APPEND_DATETIME_STRING;
+                        sParam[i].mDateTime.mFormatStr = aDateFormat;
+                        sParam[i].mDateTime.mDateStr = aStringValueArr[i];
+                    }
+                    break;
+                case 10:
+                    sParam[i].mVar.mData = aStringValueArr[i];
+                    sParam[i].mVar.mLength = aByteArrSize;
+                    break;
+                case 9:
+                case 5:
+                    sParam[i].mVar.mData = aStringValueArr[i];
+                    sParam[i].mVar.mLength = strlen(aStringValueArr[i]);
+                    break;
+                case 6:
+                case 7:
+                    sParam[i].mIP.mLength = SQL_APPEND_IP_STRING;
+                    sParam[i].mIP.mAddrString = aStringValueArr[i];
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    if( SQLAppendDataV2(aStmt, sParam) != SQL_SUCCESS )
+    {
+        free(sParam);
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLAppendData Error");
+        return RC_FAILURE;
+    }
+    else
+    {
+        free(sParam);
+        return RC_SUCCESS;
+    }
+}
+
+int appendFlush(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr)
 {
     if( SQLAppendFlush(aStmt) != SQL_SUCCESS )
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLAppendFlush Error");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLAppendFlush Error");
         return RC_FAILURE;
     }
     else
@@ -425,25 +585,25 @@ int appendFlush(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt)
     }
 }
 
-SQLBIGINT appendClose(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt)
+SQLBIGINT appendClose(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr)
 {
     SQLBIGINT sSuccessCount = 0;
     SQLBIGINT sFailureCount = 0;
 
     if( SQLAppendClose(aStmt, &sSuccessCount, &sFailureCount) != SQL_SUCCESS )
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLAppendClose Error");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLAppendClose Error");
         return RC_FAILURE;
     }
 
     return sSuccessCount;
 }
 
-int prepare(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char *aSQL) 
+int prepare(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, char *aSQL)
 {
     if( SQLPrepare(aStmt, (SQLCHAR *)aSQL, SQL_NTS) != SQL_SUCCESS )
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLPrepare Error");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLPrepare error.");
         return RC_FAILURE;
     }
     else
@@ -452,11 +612,11 @@ int prepare(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char *aS
     }
 }
 
-int execute(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt) 
+int execute(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr)
 {
     if( SQLExecute(aStmt) != SQL_SUCCESS )
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLExecute Error");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLExecute Error");
         return RC_FAILURE;
     }
     else
@@ -465,11 +625,11 @@ int execute(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt)
     }
 }
 
-int colCount(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, SQLSMALLINT *aCol)
+int colCount(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, SQLSMALLINT *aColumnCount)
 {
-    if (SQLNumResultCols(aStmt, (SQLSMALLINT *)aCol) != SQL_SUCCESS)
+    if (SQLNumResultCols(aStmt, (SQLSMALLINT *)aColumnCount) != SQL_SUCCESS)
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLNumResultCols ERROR");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLNumResultCols ERROR");
         return RC_FAILURE;
     }
     else
@@ -478,23 +638,23 @@ int colCount(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, SQLSMAL
     }
 }
 
-int describeCol(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char **aColName, SQLSMALLINT *aColType, SQLULEN *aColLen, int aNum)
+int describeCol(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, char **aColumnNameArr, SQLSMALLINT *aColumnTypeArr, SQLULEN *aColumnLengArr, int aIdx)
 {
     SQLSMALLINT sCol;
     SQLSMALLINT sDigit;
     SQLSMALLINT sNull;
 
     if(SQLDescribeCol(aStmt,
-                      (SQLSMALLINT)(aNum+1),
-                      (SQLCHAR *)aColName[aNum], 1024,
+                      (SQLSMALLINT)(aIdx+1),
+                      (SQLCHAR *)aColumnNameArr[aIdx], 1024,
                       (SQLSMALLINT *)&sCol,
-                      (SQLSMALLINT *)&aColType[aNum],
-                      (SQLULEN *)&aColLen[aNum],
+                      (SQLSMALLINT *)&aColumnTypeArr[aIdx],
+                      (SQLULEN *)&aColumnLengArr[aIdx],
                       (SQLSMALLINT *)&sDigit,
                       (SQLSMALLINT *)&sNull)
        != SQL_SUCCESS)
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLDescribeCol ERROR");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLDescribeCol ERROR");
         return RC_FAILURE;
     }
     else
@@ -503,56 +663,56 @@ int describeCol(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, char
     }
 }
 
-int bindCol(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, long long *aLongData, double *aDoubleData, char **aStrData, SQLLEN *aColRLen, int aColType, long aColLen, int aNum)
-{   
-    if(aColType == 2 || 
-       aColType == 3 ||
-       aColType == 4 ||
-       aColType == 5 ||
-       aColType == 2201 ||
-       aColType == 2202 ||
-       aColType == 2203 ||
-       aColType == -5 ||
-       aColType == -6
+int bindCol(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr, long long *aLongDataArr, double *aDoubleDataArr, char **aStringDataArr, SQLLEN *aColumnRLengArr, int aColumnType, long aColumnLength, int aIdx)
+{
+    if(aColumnType == 2 ||
+       aColumnType == 3 ||
+       aColumnType == 4 ||
+       aColumnType == 5 ||
+       aColumnType == 2201 ||
+       aColumnType == 2202 ||
+       aColumnType == 2203 ||
+       aColumnType == -5 ||
+       aColumnType == -6
     )
     {
         if(SQLBindCol(aStmt,
-                        aNum + 1,
+                        aIdx + 1,
                         SQL_C_SBIGINT,
-                        &aLongData[aNum],
+                        &aLongDataArr[aIdx],
                         0,
-                        &aColRLen[aNum]) != SQL_SUCCESS)
+                        &aColumnRLengArr[aIdx]) != SQL_SUCCESS)
         {
-            printError(aEnv, aCon, aStmt, aErrStmt, "SQLBindCol ERROR");
+            printError(aEnv, aCon, aStmt, aCStmtErr, "SQLBindCol ERROR");
             return RC_FAILURE;
         }
     }
-    else if(aColType == 6 ||
-            aColType == 7 ||
-            aColType == 8
+    else if(aColumnType == 6 ||
+            aColumnType == 7 ||
+            aColumnType == 8
     )
     {
         if(SQLBindCol(aStmt,
-                        aNum + 1,
+                        aIdx + 1,
                         SQL_C_DOUBLE,
-                        &aDoubleData[aNum],
+                        &aDoubleDataArr[aIdx],
                         0,
-                        &aColRLen[aNum]) != SQL_SUCCESS)
+                        &aColumnRLengArr[aIdx]) != SQL_SUCCESS)
         {
-            printError(aEnv, aCon, aStmt, aErrStmt, "SQLBindCol ERROR");
+            printError(aEnv, aCon, aStmt, aCStmtErr, "SQLBindCol ERROR");
             return RC_FAILURE;
         }
     }
     else
     {
         if(SQLBindCol(aStmt,
-                        aNum + 1,
+                        aIdx + 1,
                         SQL_C_CHAR,
-                        aStrData[aNum],
-                        aColLen + 1,
-                        &aColRLen[aNum]) != SQL_SUCCESS)
+                        aStringDataArr[aIdx],
+                        aColumnLength + 1,
+                        &aColumnRLengArr[aIdx]) != SQL_SUCCESS)
         {
-            printError(aEnv, aCon, aStmt, aErrStmt, "SQLBindCol ERROR");
+            printError(aEnv, aCon, aStmt, aCStmtErr, "SQLBindCol ERROR");
             return RC_FAILURE;
         }
     }
@@ -560,11 +720,11 @@ int bindCol(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt, long lon
     return RC_SUCCESS;
 }
 
-int fetch(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt) 
+int fetch(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aCStmtErr)
 {
     if( SQLFetch(aStmt) != SQL_SUCCESS )
     {
-        printError(aEnv, aCon, aStmt, aErrStmt, "SQLFetch Error");
+        printError(aEnv, aCon, aStmt, aCStmtErr, "SQLFetch Error");
         return RC_FAILURE;
     }
     else
@@ -576,38 +736,50 @@ int fetch(SQLHENV aEnv, SQLHDBC aCon, SQLHSTMT aStmt, char *aErrStmt)
 import "C"
 
 import (
+    // "fmt"
     "unsafe"
-    //"fmt"
+    "strconv"
+    "encoding/hex"
 )
 
 type MachbaseConnect struct {
-    sCon     C.SQLHDBC
-    sEnv     C.SQLHENV
-    sErrCon  *C.char
+    Con      C.SQLHDBC
+    Env      C.SQLHENV
+    CConErr  *C.char
+    GConErr  string
 }
 
 type MachbaseStmt struct {
-    sConP        *C.SQLHDBC
-    sEnvP        *C.SQLHENV
-    sStmt        C.SQLHSTMT
-    sErrStmt     *C.char
-    sColCount    C.SQLSMALLINT
-    sColName     **C.char
-    sColType     *C.SQLSMALLINT
-    sColLen      *C.SQLULEN
-    sLongData    *C.LONGLONG
-    sDoubleData  *C.double
-    sStrData     **C.char
-    sColRLen     *C.SQLLEN
+    ConPtr          *C.SQLHDBC
+    EnvPtr          *C.SQLHENV
+    Stmt            C.SQLHSTMT
+    CStmtErr        *C.char
+    GStmtErr        string
+    ColumnCount     C.SQLSMALLINT
+    ColumnNameArr   **C.char
+    ColumnTypeArr   *C.SQLSMALLINT
+    ColumnLengArr   *C.SQLULEN
+    ColumnRLengArr  *C.SQLLEN
+    LongDataArr     *C.longlong
+    DoubleDataArr   *C.double
+    StringDataArr   **C.char
+}
+
+type MachbaseSchema struct {
+    Name     string
+    SqlType  int
+    ColType  int
+    Length   int
 }
 
 var RC_SUCCESS int = 0
 var RC_FAILURE int = -1
 
-var COL_SIZE int = 1024
-var MAX_COL_SIZE int = 4096
+var COL_SIZE      int = 1024
+var MAX_COL_SIZE  int = 4096        //Byte. ... 4KB
+var BLOB_COL_SIZE int = 67108864    //64MB
 
-var MACHBASE_SHORT    int = 0 
+var MACHBASE_SHORT    int = 0
 var MACHBASE_INTEGER  int = 1
 var MACHBASE_LONG     int = 2
 var MACHBASE_FLOAT    int = 3
@@ -644,68 +816,79 @@ var SQL_IPV6           int = 2106
 var SQL_USMALLINT      int = 2201
 var SQL_UINTEGER       int = 2202
 var SQL_UBIGINT        int = 2203
+var SQL_BINARY         int = -2
 var SQL_BIGINT         int = -5
 var SQL_TINYINT        int = -6
 
 func CreateConnect() *MachbaseConnect {
     sMachbaseConnect := &MachbaseConnect{}
-    sMachbaseConnect.sErrCon = nil
+    sMachbaseConnect.CConErr = nil
+    sMachbaseConnect.GConErr = ""
 
     return sMachbaseConnect
 }
 
 func (sMachbaseConnect *MachbaseConnect) ConnectDB(aDriver string) int {
     sDriver := C.CString(aDriver)
-    sMachbaseConnect.sErrCon = C.makeErrChar(C.int(MAX_COL_SIZE))
+    sMachbaseConnect.CConErr = C.makeErrChar(C.int(MAX_COL_SIZE))
     defer C.free(unsafe.Pointer(sDriver))
 
-    if int(C.connectDB(&sMachbaseConnect.sEnv, &sMachbaseConnect.sCon, sMachbaseConnect.sErrCon, sDriver)) == RC_SUCCESS {
+    if int(C.connectDB(&sMachbaseConnect.Env, &sMachbaseConnect.Con, sMachbaseConnect.CConErr, sDriver)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseConnect.SetConErr()
         return RC_FAILURE
     }
 }
 
 func (sMachbaseConnect *MachbaseConnect) DisconnectDB() int {
     defer func() {
-        if sMachbaseConnect.sErrCon != nil {
-            C.freeErrChar(sMachbaseConnect.sErrCon)
+        if sMachbaseConnect.CConErr != nil {
+            C.freeChar(sMachbaseConnect.CConErr)
         }
+        sMachbaseConnect.CConErr = nil
     }()
 
-    if int(C.disconnectDB(&sMachbaseConnect.sEnv, &sMachbaseConnect.sCon)) == RC_SUCCESS {
+    if int(C.disconnectDB(&sMachbaseConnect.Env, &sMachbaseConnect.Con)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseConnect.GConErr = "SQLDisconnect error"
         return RC_FAILURE
     }
 }
 
+func (sMachbaseConnect *MachbaseConnect) SetConErr() {
+    sMachbaseConnect.GConErr = C.GoString(sMachbaseConnect.CConErr)
+}
+
 func (sMachbaseConnect *MachbaseConnect) PrintConErr() string {
-    return C.GoString(sMachbaseConnect.sErrCon)
+    return sMachbaseConnect.GConErr
 }
 
 func (sMachbaseConnect *MachbaseConnect) CreateStmt() *MachbaseStmt {
     sMachbaseStmt := &MachbaseStmt{}
-    sMachbaseStmt.sConP = &sMachbaseConnect.sCon
-    sMachbaseStmt.sEnvP = &sMachbaseConnect.sEnv
-    sMachbaseStmt.sErrStmt = nil
-    sMachbaseStmt.sColName = nil
-    sMachbaseStmt.sColType = nil
-    sMachbaseStmt.sColLen = nil
-    sMachbaseStmt.sLongData = nil
-    sMachbaseStmt.sDoubleData = nil
-    sMachbaseStmt.sStrData = nil
-    sMachbaseStmt.sColRLen = nil
+    sMachbaseStmt.ConPtr = &sMachbaseConnect.Con
+    sMachbaseStmt.EnvPtr = &sMachbaseConnect.Env
+    sMachbaseStmt.CStmtErr = nil
+    sMachbaseStmt.GStmtErr = ""
+    sMachbaseStmt.ColumnNameArr = nil
+    sMachbaseStmt.ColumnTypeArr = nil
+    sMachbaseStmt.ColumnLengArr = nil
+    sMachbaseStmt.ColumnRLengArr = nil
+    sMachbaseStmt.LongDataArr = nil
+    sMachbaseStmt.DoubleDataArr = nil
+    sMachbaseStmt.StringDataArr = nil
 
     return sMachbaseStmt
 }
 
 func (sMachbaseStmt *MachbaseStmt) AllocStmt() int {
-    sMachbaseStmt.sErrStmt = C.makeErrChar(C.int(MAX_COL_SIZE))
+    sMachbaseStmt.CStmtErr = C.makeErrChar(C.int(MAX_COL_SIZE))
 
-    if int(C.allocStmt(*sMachbaseStmt.sEnvP ,*sMachbaseStmt.sConP, &sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, 0)) == RC_SUCCESS {
+    if int(C.allocStmt(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, &sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
     }
 }
@@ -714,59 +897,61 @@ func (sMachbaseStmt *MachbaseStmt) ExecDirect(aSql string) int {
     sSql := C.CString(aSql)
     defer C.free(unsafe.Pointer(sSql))
 
-    if int(C.execDirect(*sMachbaseStmt.sEnvP ,*sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, sSql, 0)) == RC_SUCCESS {
+    if int(C.execDirect(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, sSql)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
     }
 }
 
 func (sMachbaseStmt *MachbaseStmt) FreeStmt() int {
     defer func() {
-        if sMachbaseStmt.sErrStmt != nil {
-            C.freeErrChar(sMachbaseStmt.sErrStmt)
+        if sMachbaseStmt.CStmtErr != nil {
+            C.freeChar(sMachbaseStmt.CStmtErr)
         }
-        sMachbaseStmt.sErrStmt = nil
+        sMachbaseStmt.CStmtErr = nil
 
-        if sMachbaseStmt.sColName != nil {
-            C.freeCharArray(sMachbaseStmt.sColName, C.int(sMachbaseStmt.sColCount))
+        if sMachbaseStmt.ColumnNameArr != nil {
+            C.freeCharArray(sMachbaseStmt.ColumnNameArr, C.int(sMachbaseStmt.ColumnCount))
         }
-        sMachbaseStmt.sColName = nil
+        sMachbaseStmt.ColumnNameArr = nil
 
-        if sMachbaseStmt.sColType != nil {
-            C.freeIntArray2(sMachbaseStmt.sColType)
+        if sMachbaseStmt.ColumnTypeArr != nil {
+            C.freeColTypeArray(sMachbaseStmt.ColumnTypeArr)
         }
-        sMachbaseStmt.sColType = nil
+        sMachbaseStmt.ColumnTypeArr = nil
 
-        if sMachbaseStmt.sColLen != nil {
-            C.freeIntArray3(sMachbaseStmt.sColLen)
+        if sMachbaseStmt.ColumnLengArr != nil {
+            C.freeColLenArray(sMachbaseStmt.ColumnLengArr)
         }
-        sMachbaseStmt.sColLen = nil
+        sMachbaseStmt.ColumnLengArr = nil
 
-        if sMachbaseStmt.sLongData != nil {
-            C.freeLongArray(sMachbaseStmt.sLongData)
+        if sMachbaseStmt.ColumnRLengArr != nil {
+            C.freeColRLenArray(sMachbaseStmt.ColumnRLengArr)
         }
-        sMachbaseStmt.sLongData = nil
+        sMachbaseStmt.ColumnRLengArr = nil
 
-        if sMachbaseStmt.sDoubleData != nil {
-            C.freeDoubleArray(sMachbaseStmt.sDoubleData)
+        if sMachbaseStmt.LongDataArr != nil {
+            C.freeLongArray(sMachbaseStmt.LongDataArr)
         }
-        sMachbaseStmt.sDoubleData = nil
+        sMachbaseStmt.LongDataArr = nil
 
-        if sMachbaseStmt.sStrData != nil {
-            C.freeCharArray(sMachbaseStmt.sStrData, C.int(sMachbaseStmt.sColCount))
+        if sMachbaseStmt.DoubleDataArr != nil {
+            C.freeDoubleArray(sMachbaseStmt.DoubleDataArr)
         }
-        sMachbaseStmt.sStrData = nil
+        sMachbaseStmt.DoubleDataArr = nil
 
-        if sMachbaseStmt.sColRLen != nil {
-            C.freeIntArray4(sMachbaseStmt.sColRLen)
+        if sMachbaseStmt.StringDataArr != nil {
+            C.freeCharArray(sMachbaseStmt.StringDataArr, C.int(sMachbaseStmt.ColumnCount))
         }
-        sMachbaseStmt.sColRLen = nil
+        sMachbaseStmt.StringDataArr = nil
     }()
 
-    if int(C.freeStmt(*sMachbaseStmt.sEnvP ,*sMachbaseStmt.sConP, &sMachbaseStmt.sStmt, 0)) == RC_SUCCESS {
+    if int(C.freeStmt(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, &sMachbaseStmt.Stmt)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.GStmtErr = "SQLFreeStmt Error"
         return RC_FAILURE
     }
 }
@@ -775,78 +960,233 @@ func (sMachbaseStmt *MachbaseStmt) AppendOpen(aTableName string) int {
     sTableName := C.CString(aTableName)
     defer C.free(unsafe.Pointer(sTableName))
 
-    if int(C.appendOpen(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, sTableName)) == RC_SUCCESS {
+    if int(C.appendOpen(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, sTableName)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
     }
 }
 
-func (sMachbaseStmt *MachbaseStmt) AppendDataV2(aType []int, aValue []string, aDateFormat string, aLen int) int {
-    if len(aValue) != len(aType) {
-        return RC_FAILURE
-    }
-
-    var sValue **C.char = nil
-    var sType *C.int = nil
-    var sDateFormat *C.char = nil
-
-    sValue = C.makeCharArray(C.int(len(aValue)))
-    if sValue == nil {
-        return RC_FAILURE
-    }
-
-    sType = C.makeIntArray(C.int(len(aType)))
-    if sType == nil {
-        return RC_FAILURE
-    }
-
-    sDateFormat = C.CString(aDateFormat)
-    sLen := C.int(aLen)
-
-    for i, s := range aValue {
-        C.setArrayString(sValue, C.CString(s), C.int(i))
-    }
-
-    for i, s := range aType {
-        C.setArrayInt(sType, C.int(s), C.int(i))
-    }
+func (sMachbaseStmt *MachbaseStmt) AppendDataV2(aTypeArr []int, aValueArr []string, aDateFormat string, aLength int) int {
+    var sTypeArr *C.int = nil
+    var sDateFormat *C.char = C.CString(aDateFormat)
+    var sLength C.int = C.int(aLength)
+    var sValueArr **C.char = nil
+    var sConvertValue *C.char = nil
+    var sByteArrSize C.int = C.int(0)
 
     defer func() {
-        if sValue != nil {
-            C.freeCharArray(sValue, C.int(len(aValue)))
+        if sValueArr != nil {
+            C.freeCharArray(sValueArr, sLength)
         }
+        sValueArr = nil
 
-        if sType != nil {
-            C.freeIntArray(sType)
+        if sTypeArr != nil {
+            C.freeAppendTypeArray(sTypeArr)
         }
+        sTypeArr = nil
 
         if sDateFormat != nil {
             C.free(unsafe.Pointer(sDateFormat))
         }
+        sDateFormat = nil
     }()
 
-    if int(C.appendDataV2(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, sType, sValue, sDateFormat, sLen)) == RC_SUCCESS {
+    if (len(aValueArr) != len(aTypeArr)) || (len(aValueArr) != aLength) {
+        sMachbaseStmt.GStmtErr = "Array length different"
+        return RC_FAILURE
+    }
+
+    sValueArr = C.makeAppendCharArray(sLength)
+    sTypeArr = C.makeAppendTypeArray(sLength)
+
+    if (sValueArr == nil) || (sTypeArr == nil) {
+        sMachbaseStmt.GStmtErr = "Array creation failed"
+        return RC_FAILURE
+    }
+
+    for sIdx, sValue := range aValueArr {
+        if sValue == "" {
+            sConvertValue = C.setNilString()
+        } else {
+            sConvertValue = C.CString(sValue)
+        }
+
+        if aTypeArr[sIdx] == MACHBASE_BINARY {
+            sByteArrSize = C.int(len([]byte(sValue)))
+        }
+
+        C.setArrayString(sValueArr, sConvertValue, C.int(sIdx))
+        C.setArrayInt(sTypeArr, C.int(aTypeArr[sIdx]), C.int(sIdx))
+    }
+
+    if int(C.appendDataV2(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, sTypeArr, sValueArr, sDateFormat, sLength, sByteArrSize)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
+        return RC_FAILURE
+    }
+}
+
+func (sMachbaseStmt *MachbaseStmt) AppendDataV2I(aTypeArr []int, aValueArr []interface{}, aDateFormat string, aLength int) int {
+    var sTypeArr *C.int = nil
+    var sDateFormat *C.char = C.CString(aDateFormat)
+    var sLength C.int = C.int(aLength)
+    var sLongValueArr *C.longlong = nil
+    var sDoubleValueArr *C.double = nil
+    var sStringValueArr **C.char = nil
+    var sConvertLongValue C.longlong = C.SQL_APPEND_LONG_NULL
+    var sConvertDoubleValue C.double = C.SQL_APPEND_DOUBLE_NULL
+    var sConvertStringValue *C.char = nil
+    var sByteArrSize C.int = C.int(0)
+    var sResult int = RC_SUCCESS
+
+    defer func() {
+        if sLongValueArr != nil {
+            C.freeLongArray(sLongValueArr)
+        }
+        sLongValueArr = nil
+
+        if sDoubleValueArr != nil {
+            C.freeDoubleArray(sDoubleValueArr)
+        }
+        sDoubleValueArr = nil
+
+        if sStringValueArr != nil {
+            C.freeCharArray(sStringValueArr, sLength)
+        }
+        sStringValueArr = nil
+
+        if sTypeArr != nil {
+            C.freeAppendTypeArray(sTypeArr)
+        }
+        sTypeArr = nil
+
+        if sDateFormat != nil {
+            C.free(unsafe.Pointer(sDateFormat))
+        }
+        sDateFormat = nil
+    }()
+
+    if (len(aValueArr) != len(aTypeArr)) || (len(aValueArr) != aLength) {
+        sMachbaseStmt.GStmtErr = "Array length different"
+        return RC_FAILURE
+    }
+
+    sLongValueArr = C.makeLongArray(sLength)
+    sDoubleValueArr = C.makeDoubleArray(sLength)
+    sStringValueArr = C.makeAppendCharArray(sLength)
+    sTypeArr = C.makeAppendTypeArray(sLength)
+
+    if (sLongValueArr == nil) || (sDoubleValueArr == nil) || (sStringValueArr == nil) || (sTypeArr == nil) {
+        sMachbaseStmt.GStmtErr = "Array creation failed"
+        return RC_FAILURE
+    }
+
+    for sIdx, sValue := range aValueArr {
+        sConvertLongValue = C.SQL_APPEND_LONG_NULL
+        sConvertDoubleValue = C.SQL_APPEND_DOUBLE_NULL
+        sConvertStringValue = C.setNilString()
+
+        switch aTypeArr[sIdx] {
+            case MACHBASE_SHORT, MACHBASE_INTEGER, MACHBASE_LONG, MACHBASE_USHORT, MACHBASE_UINTEGER, MACHBASE_ULONG:
+                if sValue != nil {
+                    sResult = MachTypeCheck(sValue, "INT64")
+                    if sResult == RC_FAILURE {
+                        sMachbaseStmt.GStmtErr = "Column type and value type are different"
+                        return RC_FAILURE
+                    } else {
+                        sConvertLongValue = C.longlong(sValue.(int64))
+                    }
+                }
+            case MACHBASE_FLOAT, MACHBASE_DOUBLE:
+                if sValue != nil {
+                    sResult = MachTypeCheck(sValue, "FLOAT64")
+                    if sResult == RC_FAILURE {
+                        sMachbaseStmt.GStmtErr = "Column type and value type are different"
+                        return RC_FAILURE
+                    } else {
+                        sConvertDoubleValue = C.double(sValue.(float64))
+                    }
+                }
+            case MACHBASE_VARCHAR, MACHBASE_IPV4, MACHBASE_IPV6, MACHBASE_TEXT:
+                if sValue != nil {
+                    sResult = MachTypeCheck(sValue, "STRING")
+                    if sResult == RC_FAILURE {
+                        sMachbaseStmt.GStmtErr = "Column type and value type are different"
+                        return RC_FAILURE
+                    } else {
+                        C.freeChar(sConvertStringValue)
+                        sConvertStringValue = C.CString(sValue.(string))
+                    }
+                }
+            case MACHBASE_BINARY:
+                if sValue != nil {
+                    sResult = MachTypeCheck(sValue, "BYTE")
+                    if sResult == RC_FAILURE {
+                        sMachbaseStmt.GStmtErr = "Column type and value type are different"
+                        return RC_FAILURE
+                    } else {
+                        C.freeChar(sConvertStringValue)
+                        sConvertStringValue = (*C.char)(C.CBytes(sValue.([]byte)))
+                        sByteArrSize = C.int(len(sValue.([]byte)))
+                    }
+                }
+            case MACHBASE_DATETIME:
+                if sValue != nil {
+                    if aDateFormat == "" {
+                        sResult = MachTypeCheck(sValue, "INT64")
+                        if sResult == RC_FAILURE {
+                            sMachbaseStmt.GStmtErr = "Column type and value type are different"
+                            return RC_FAILURE
+                        } else {
+                            C.freeChar(sConvertStringValue)
+                            sConvertStringValue = C.CString(strconv.FormatInt(sValue.(int64), 10))
+                        }
+                    } else {
+                        sResult = MachTypeCheck(sValue, "STRING")
+                        if sResult == RC_FAILURE {
+                            sMachbaseStmt.GStmtErr = "Column type and value type are different"
+                            return RC_FAILURE
+                        } else {
+                            C.freeChar(sConvertStringValue)
+                            sConvertStringValue = C.CString(sValue.(string))
+                        }
+                    }
+                }
+        }
+
+        C.setArrayLong(sLongValueArr, sConvertLongValue, C.int(sIdx))
+        C.setArrayDouble(sDoubleValueArr, sConvertDoubleValue, C.int(sIdx))
+        C.setArrayString(sStringValueArr, sConvertStringValue, C.int(sIdx))
+        C.setArrayInt(sTypeArr, C.int(aTypeArr[sIdx]), C.int(sIdx))
+    }
+
+    if int(C.appendDataV2I(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, sTypeArr, sLongValueArr, sDoubleValueArr, sStringValueArr, sDateFormat, sLength, sByteArrSize)) == RC_SUCCESS {
+        return RC_SUCCESS
+    } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
     }
 }
 
 func (sMachbaseStmt *MachbaseStmt) AppendFlush() int {
-    if int(C.appendFlush(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt)) == RC_SUCCESS {
+    if int(C.appendFlush(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
     }
 }
 
 func (sMachbaseStmt *MachbaseStmt) AppendClose() int {
-    sResult := int(C.appendClose(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt))
+    sResult := int(C.appendClose(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr))
 
     if sResult == RC_FAILURE {
         return RC_FAILURE
     } else {
+        sMachbaseStmt.SetStmtErr()
         return sResult
     }
 }
@@ -854,54 +1194,58 @@ func (sMachbaseStmt *MachbaseStmt) AppendClose() int {
 func (sMachbaseStmt *MachbaseStmt) Prepare(aSql string) int {
     sSql := C.CString(aSql)
     defer C.free(unsafe.Pointer(sSql))
-    
-    if int(C.prepare(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, sSql)) == RC_SUCCESS {
+
+    if int(C.prepare(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, sSql)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
     }
 }
 
 func (sMachbaseStmt *MachbaseStmt) Execute() int {
-    if int(C.execute(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt)) == RC_SUCCESS {
-        if sMachbaseStmt.ColCount() == RC_SUCCESS {
-            if sMachbaseStmt.DescribeCol() == RC_SUCCESS {
-                if sMachbaseStmt.BindCol() == RC_SUCCESS {
-                    return RC_SUCCESS
-                } else {
-                    return RC_FAILURE
-                }
-            } else {
-                return RC_FAILURE
-            }
-        } else {
-            return RC_FAILURE
-        }
+    if int(C.execute(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr)) != RC_SUCCESS {
+        sMachbaseStmt.SetStmtErr()
+        return RC_FAILURE
+    }
+
+    if sMachbaseStmt.ColCount() != RC_SUCCESS {
+        return RC_FAILURE
+    }
+
+    if sMachbaseStmt.DescribeCol() != RC_SUCCESS {
+        return RC_FAILURE
+    }
+
+    if sMachbaseStmt.BindCol() == RC_SUCCESS {
+        return RC_SUCCESS
     } else {
         return RC_FAILURE
     }
 }
 
 func (sMachbaseStmt *MachbaseStmt) ColCount() int {
-    if int(C.colCount(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, &sMachbaseStmt.sColCount)) == RC_SUCCESS {
+    if int(C.colCount(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, &sMachbaseStmt.ColumnCount)) == RC_SUCCESS {
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
     }
 }
 
 func (sMachbaseStmt *MachbaseStmt) GetColCount() int {
-    return int(sMachbaseStmt.sColCount)
+    return int(sMachbaseStmt.ColumnCount)
 }
 
 func (sMachbaseStmt *MachbaseStmt) DescribeCol() int {
-    sMachbaseStmt.sColName = C.makeCharArray2(C.int(sMachbaseStmt.sColCount), C.int(COL_SIZE))
-    sMachbaseStmt.sColType = C.makeIntArray2(C.int(sMachbaseStmt.sColCount))
-    sMachbaseStmt.sColLen = C.makeIntArray3(C.int(sMachbaseStmt.sColCount))
-    sMachbaseStmt.sColRLen = C.makeIntArray4(C.int(sMachbaseStmt.sColCount))
+    sMachbaseStmt.ColumnNameArr = C.makeColNameArray(C.int(sMachbaseStmt.ColumnCount), C.int(COL_SIZE))
+    sMachbaseStmt.ColumnTypeArr = C.makeColTypeArray(C.int(sMachbaseStmt.ColumnCount))
+    sMachbaseStmt.ColumnLengArr = C.makeColLengthArray(C.int(sMachbaseStmt.ColumnCount))
+    sMachbaseStmt.ColumnRLengArr = C.makeColRLengthArray(C.int(sMachbaseStmt.ColumnCount))
 
-    for i := 0; i < int(sMachbaseStmt.sColCount); i++ {
-        if int(C.describeCol(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, sMachbaseStmt.sColName, sMachbaseStmt.sColType, sMachbaseStmt.sColLen, C.int(i))) == RC_FAILURE {
+    for i := 0; i < int(sMachbaseStmt.ColumnCount); i++ {
+        if int(C.describeCol(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, sMachbaseStmt.ColumnNameArr, sMachbaseStmt.ColumnTypeArr, sMachbaseStmt.ColumnLengArr, C.int(i))) == RC_FAILURE {
+            sMachbaseStmt.SetStmtErr()
             return RC_FAILURE
         }
     }
@@ -910,12 +1254,13 @@ func (sMachbaseStmt *MachbaseStmt) DescribeCol() int {
 }
 
 func (sMachbaseStmt *MachbaseStmt) BindCol() int {
-    sMachbaseStmt.sLongData = C.makeLongArray(C.int(sMachbaseStmt.sColCount))
-    sMachbaseStmt.sDoubleData = C.makeDoubleArray(C.int(sMachbaseStmt.sColCount))
-    sMachbaseStmt.sStrData = C.makeCharArray2(C.int(sMachbaseStmt.sColCount), C.int(MAX_COL_SIZE))
+    sMachbaseStmt.LongDataArr = C.makeLongArray(C.int(sMachbaseStmt.ColumnCount))
+    sMachbaseStmt.DoubleDataArr = C.makeDoubleArray(C.int(sMachbaseStmt.ColumnCount))
+    sMachbaseStmt.StringDataArr = C.makeBindCharArray(C.int(sMachbaseStmt.ColumnCount), C.int(MAX_COL_SIZE), C.int(BLOB_COL_SIZE), sMachbaseStmt.ColumnTypeArr)
 
-    for i := 0; i < int(sMachbaseStmt.sColCount); i++ {
-        if int(C.bindCol(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt, sMachbaseStmt.sLongData, sMachbaseStmt.sDoubleData, sMachbaseStmt.sStrData, sMachbaseStmt.sColRLen, C.getShortValue(sMachbaseStmt.sColType, C.int(i)), C.getlongValue(sMachbaseStmt.sColLen, C.int(i)), C.int(i))) == RC_FAILURE {
+    for i := 0; i < int(sMachbaseStmt.ColumnCount); i++ {
+        if int(C.bindCol(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr, sMachbaseStmt.LongDataArr, sMachbaseStmt.DoubleDataArr, sMachbaseStmt.StringDataArr, sMachbaseStmt.ColumnRLengArr, C.getShortValue(sMachbaseStmt.ColumnTypeArr, C.int(i)), C.getlongValue(sMachbaseStmt.ColumnLengArr, C.int(i)), C.int(i))) == RC_FAILURE {
+            sMachbaseStmt.SetStmtErr()
             return RC_FAILURE
         }
     }
@@ -924,33 +1269,186 @@ func (sMachbaseStmt *MachbaseStmt) BindCol() int {
 }
 
 func (sMachbaseStmt *MachbaseStmt) Fetch(aInterfaceArr []interface{}) int {
-    if int(C.fetch(*sMachbaseStmt.sEnvP, *sMachbaseStmt.sConP, sMachbaseStmt.sStmt, sMachbaseStmt.sErrStmt)) == RC_SUCCESS {
-        for i := 0; i < int(sMachbaseStmt.sColCount); i++ {
-            sCType := int(C.getShortValue(sMachbaseStmt.sColType, C.int(i)))
-            if sCType == SQL_NUMERIC || 
-               sCType == SQL_DECIMAL ||
-               sCType == SQL_INTEGER ||
-               sCType == SQL_SMALLINT ||
-               sCType == SQL_USMALLINT ||
-               sCType == SQL_UINTEGER ||
-               sCType == SQL_UBIGINT ||
-               sCType == SQL_BIGINT ||
-               sCType == SQL_TINYINT {
-                aInterfaceArr[i] = int64(C.getlonglongValue(sMachbaseStmt.sLongData, C.int(i)))
-            } else if sCType == SQL_FLOAT ||
-                      sCType == SQL_REAL ||
-                      sCType == SQL_DOUBLE {
-                aInterfaceArr[i] = float64(C.getDoubleValue(sMachbaseStmt.sDoubleData, C.int(i)))
+    if int(C.fetch(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr)) == RC_SUCCESS {
+        for i := 0; i < int(sMachbaseStmt.ColumnCount); i++ {
+            sColumnType := int(C.getShortValue(sMachbaseStmt.ColumnTypeArr, C.int(i)))
+            aInterfaceArr[i] = nil
+            if sColumnType == SQL_NUMERIC ||
+               sColumnType == SQL_DECIMAL ||
+               sColumnType == SQL_INTEGER ||
+               sColumnType == SQL_SMALLINT ||
+               sColumnType == SQL_USMALLINT ||
+               sColumnType == SQL_UINTEGER ||
+               sColumnType == SQL_UBIGINT ||
+               sColumnType == SQL_BIGINT ||
+               sColumnType == SQL_TINYINT {
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceArr[i] = int64(C.getlonglongValue(sMachbaseStmt.LongDataArr, C.int(i)))
+                }
+            } else if sColumnType == SQL_FLOAT ||
+                      sColumnType == SQL_REAL ||
+                      sColumnType == SQL_DOUBLE {
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceArr[i] = float64(C.getDoubleValue(sMachbaseStmt.DoubleDataArr, C.int(i)))
+                }
+            } else if sColumnType == SQL_BINARY {
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceArr[i], _ = hex.DecodeString(C.GoString(C.getCharValue(sMachbaseStmt.StringDataArr, C.int(i))))
+                }
             } else {
-                aInterfaceArr[i] = C.GoString(C.getCharValue(sMachbaseStmt.sStrData, C.int(i)))
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceArr[i] = C.GoString(C.getCharValue(sMachbaseStmt.StringDataArr, C.int(i)))
+                }
             }
         }
         return RC_SUCCESS
     } else {
+        sMachbaseStmt.SetStmtErr()
         return RC_FAILURE
-    } 
+    }
+}
+
+func (sMachbaseStmt *MachbaseStmt) FetchMap(aInterfaceMap map[string]interface{}) int {
+    if int(C.fetch(*sMachbaseStmt.EnvPtr, *sMachbaseStmt.ConPtr, sMachbaseStmt.Stmt, sMachbaseStmt.CStmtErr)) == RC_SUCCESS {
+        for i := 0; i < int(sMachbaseStmt.ColumnCount); i++ {
+            sColumnName := string(C.GoString(C.getCharValue(sMachbaseStmt.ColumnNameArr, C.int(i))))
+            sColumnType := int(C.getShortValue(sMachbaseStmt.ColumnTypeArr, C.int(i)))
+            aInterfaceMap[sColumnName] = nil
+            if sColumnType == SQL_NUMERIC ||
+               sColumnType == SQL_DECIMAL ||
+               sColumnType == SQL_INTEGER ||
+               sColumnType == SQL_SMALLINT ||
+               sColumnType == SQL_USMALLINT ||
+               sColumnType == SQL_UINTEGER ||
+               sColumnType == SQL_UBIGINT ||
+               sColumnType == SQL_BIGINT ||
+               sColumnType == SQL_TINYINT {
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceMap[sColumnName] = int64(C.getlonglongValue(sMachbaseStmt.LongDataArr, C.int(i)))
+                }
+            } else if sColumnType == SQL_FLOAT ||
+                      sColumnType == SQL_REAL ||
+                      sColumnType == SQL_DOUBLE {
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceMap[sColumnName] = float64(C.getDoubleValue(sMachbaseStmt.DoubleDataArr, C.int(i)))
+                }
+            } else if sColumnType == SQL_BINARY {
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceMap[sColumnName], _ = hex.DecodeString(C.GoString(C.getCharValue(sMachbaseStmt.StringDataArr, C.int(i))))
+                }
+            } else {
+                if C.getColLen(sMachbaseStmt.ColumnRLengArr, C.int(i)) != C.SQL_NULL_DATA {
+                    aInterfaceMap[sColumnName] = C.GoString(C.getCharValue(sMachbaseStmt.StringDataArr, C.int(i)))
+                }
+            }
+        }
+        return RC_SUCCESS
+    } else {
+        sMachbaseStmt.SetStmtErr()
+        return RC_FAILURE
+    }
+}
+
+func (sMachbaseStmt *MachbaseStmt) Schema() ([]MachbaseSchema, int) {
+    var sSchemaInfo MachbaseSchema = MachbaseSchema{}
+    var sSchemaList []MachbaseSchema = nil
+
+    for i := 0; i < int(sMachbaseStmt.ColumnCount); i++ {
+        sSchemaInfo.Name = string(C.GoString(C.getCharValue(sMachbaseStmt.ColumnNameArr, C.int(i))))
+        sSchemaInfo.SqlType = int(C.getShortValue(sMachbaseStmt.ColumnTypeArr, C.int(i)))
+        sSchemaInfo.ColType = SchemaType(sSchemaInfo.SqlType)
+        sSchemaInfo.Length = int(C.getlongValue(sMachbaseStmt.ColumnLengArr, C.int(i)))
+        sSchemaList = append(sSchemaList, sSchemaInfo)
+    }
+
+    return sSchemaList, RC_SUCCESS
+}
+
+func (sMachbaseStmt *MachbaseStmt) SetStmtErr() {
+    sMachbaseStmt.GStmtErr = C.GoString(sMachbaseStmt.CStmtErr)
 }
 
 func (sMachbaseStmt *MachbaseStmt) PrintStmtErr() string {
-    return C.GoString(sMachbaseStmt.sErrStmt)
+    return sMachbaseStmt.GStmtErr
+}
+
+func MachTypeCheck(aValue interface{}, aType string) int {
+    var sResult int = RC_FAILURE
+
+    if aType == "INT64" {
+        switch aValue.(type) {
+            case int64:
+                sResult = RC_SUCCESS
+            default:
+                sResult = RC_FAILURE
+        }
+    } else if aType == "FLOAT64" {
+        switch aValue.(type) {
+            case float64:
+                sResult = RC_SUCCESS
+            default:
+                sResult = RC_FAILURE
+        }
+    } else if aType == "STRING" {
+        switch aValue.(type) {
+            case string:
+                sResult = RC_SUCCESS
+            default:
+                sResult = RC_FAILURE
+        }
+    } else if aType == "BYTE" {
+        switch aValue.(type) {
+            case []byte:
+                sResult = RC_SUCCESS
+            default:
+                sResult = RC_FAILURE
+        }
+    } else {
+        sResult = RC_FAILURE
+    }
+
+    return sResult
+}
+
+func SchemaType(aType int) int {
+    var sResultType int = 0
+
+    switch aType {
+        case SQL_SMALLINT:    // short
+            sResultType = 4
+        case SQL_INTEGER:     // integer
+            sResultType = 8
+        case SQL_BIGINT:      // long
+            sResultType = 12
+        case SQL_FLOAT:       // float
+            sResultType = 16
+        case SQL_DOUBLE:      // double
+            sResultType = 20
+        case SQL_VARCHAR:     // varchar
+            sResultType = 5
+        case SQL_IPV4:        // ipv4
+            sResultType = 32
+        case SQL_IPV6:        // ipv6
+            sResultType = 36
+        case SQL_DATETIME:    // datetime
+            sResultType = 6
+        case SQL_TEXT:        // text
+            sResultType = 49
+        case SQL_CLOB:        // CLOB
+            sResultType = 53
+        case SQL_BLOB:        // BLOB
+            sResultType = 57
+        case SQL_BINARY:      // binary
+            sResultType = 97
+        case SQL_USMALLINT:   // unsigned short
+            sResultType = 104
+        case SQL_UINTEGER:    // unsigned integer
+            sResultType = 108
+        case SQL_UBIGINT:     // unsigned long
+            sResultType = 112
+        default:              // SQL_UNKNOWN_TYPE
+            sResultType = 0
+    }
+
+    return sResultType
 }
