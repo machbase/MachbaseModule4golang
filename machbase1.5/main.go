@@ -19,7 +19,7 @@ var (
     port   string = "5656"
     id     string = "SYS"
     pw     string = "MANAGER"
-    driver string = fmt.Sprintf("SERVER=%s;UID=%s;PWD=%s;CONNTYPE=1;PORT_NO=%s;CONNECTION_TIMEOUT=3", ip, id, pw, port)
+    driver string = fmt.Sprintf("SERVER=%s;UID=%s;PWD=%s;CONNTYPE=1;PORT_NO=%s;CONNECTION_TIMEOUT=3;TIMEZONE=+0900", ip, id, pw, port)
 )
 
 func main() {

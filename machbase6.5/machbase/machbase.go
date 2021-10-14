@@ -23,6 +23,7 @@ type MachbaseConnect struct {
     Method      string
     Sql         string
     DateFormat  string
+    Timezone    string
     Scale       int
     FetchMode   int
     TimeOut     int
@@ -158,6 +159,12 @@ func Sql(aSql string) SetOption {
 func DateFormat(aDateFormat string) SetOption {
     return func(aConnect *MachbaseConnect) {
         aConnect.DateFormat = aDateFormat
+    }
+}
+
+func Timezone(aTimezone string) SetOption {
+    return func(aConnect *MachbaseConnect) {
+        aConnect.Timezone = aTimezone
     }
 }
 
@@ -297,10 +304,13 @@ func (rConnect *MachbaseConnect) SendRequest(aData *bytes.Buffer, aKey2 string) 
         sRequest.Header.Add("Content-Type", "application/json")
     }
 
+    if rConnect.Timezone != "" {
+        // add Timezone Header
+        sRequest.Header.Add("The-Timezone-Machbase", rConnect.Timezone)
+    }
+
     if rConnect.TimeOut != 0 {
         sClient.Timeout = time.Duration(rConnect.TimeOut) * time.Second
-    } else {
-        // Nothing To Do
     }
 
     sResponse, sError = sClient.Do(sRequest)

@@ -192,6 +192,7 @@ func SelectRestAPI() {
         machbase.Sql(sql),
         machbase.Method(machbase.MACHBASE_GET),
         machbase.DateFormat(machbase.MACHBASE_DEFAULT_DATEFORMAT),
+        machbase.Timezone("+0900"),
         machbase.Scale(machbase.MACHBASE_SCALE_5),
         machbase.FetchMode(machbase.MACHBASE_FETCHMODE_0),
     )
@@ -254,6 +255,7 @@ func SelectRestAPIOption() {
         machbase.Sql(sql),
         machbase.Method(machbase.MACHBASE_GET),
         machbase.DateFormat(machbase.MACHBASE_DEFAULT_DATEFORMAT),
+        machbase.Timezone("-0900"),
         machbase.Scale(machbase.MACHBASE_SCALE_9),
         machbase.FetchMode(machbase.MACHBASE_FETCHMODE_1),
     )
